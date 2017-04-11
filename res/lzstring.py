@@ -1,3 +1,5 @@
+# coding:utf-8
+
 """
 Copyright © 2014 Eduard Tomasek <???>
 This work is free. You can redistribute it and/or modify it under the
@@ -306,6 +308,10 @@ class LZString:
             elif math.isnan(chr3):
                 enc4 = 64
 
+            if i >= strlen*2-3:
+                enc3 = 64
+                enc4 = 64
+
             output += (
                 self.keyStr[enc1] +
                 self.keyStr[enc2] +
@@ -570,6 +576,8 @@ class LZString:
 
                 if data_position == 0:
                     data_position = 32768
+                    if data_index >= len(data_string):
+                        return result
                     data_val = ord(data_string[data_index])
                     data_index += 1
 
@@ -691,3 +699,9 @@ class LZString:
             ol += 3
 
         return self.decompress(output)
+
+
+lzstring = LZString()
+#print(lzstring.compressToBase64('||yiquanchaoren|23|yb20|webp|jpg|ps2|013014|014015|015016|009010|008009|007008|010011|012013|006007|011012|022023|021022|023024|025026|024025|017018|016017|018019|020021|019020|005006|chapterId|一拳超人原作版|97814|第20|chapterTitle||reader|SMH|bookId|bookName|9637|001002|000001|002003|004005|003004|nextId|23话|97815|images|prevId|052053|051052|054055|053054|050051|047048|046047|049050|048049|055056|status|60|preInit|block_cc|count|057058|056057|059060|058059|045046|032033|031032|033034|035036|034035|027028|026027|028029|030031|029030|041042|040041|042043|044045|043044|039040|037038|038039|036037'))
+
+print(lzstring.decompresFromBase64('D7CeEsEcFcEMDsDGALWB7ATgU3sATAMxgBGeADMAO5bEAOwAVrQObC0DOewZAjAbwBZuPAbwCswsbwBs3MgE5eFMmQAcK+XIDsK1cJU8ew8nznSVW4T15cyecoW55r9p/zxC7UvLLui8Erw6PHoyQcLqPJp2Ks7CiuRyUmSyKLC0AC5YGACSACbAgABygM9GgKGxgF1ygPnKgDrygBJOwPJaqiLAgDTeiWmZ2QAq4BkANlgg2LB52cAAygCyABLAxGhoANb584tLAHKwALZD8tIElgaxciq8cuRkRCqiZIFXN8DwWAAeGauEgLvRDU08EuDbWDMLDsNjYABuqzu5DE1zE1jEtjEojEgVhd08yXh3AEOgEoQE5lxOMUUhx6gE0VRd1k7AysAy0FB5jBWBy8D6836aEQSwA+ohEMBEGhoPAMtwxDoxKExOYpZLFCy7uoxNEBFJCdwCOQCNcCNYddr+ARPAQpARfKaroE8Do8KEfHYjg67NF+FcjG6HjjrAJbLcBF7/WQBNcBKINTj+BHtYpRNqdARQsmru7zIcgA=='))
