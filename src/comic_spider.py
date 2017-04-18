@@ -110,7 +110,7 @@ def main():
     for i in range(0, len(comic_images)):
         comic_images[i] = "http://i.hamreus.com:8080" + comic_images[i]
 
-    print("prepare download image count = %s", len(comic_images))
+    print("prepare download image count = %s" % len(comic_images))
 
     # download image
     image_dir = "./images"
