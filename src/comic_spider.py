@@ -14,9 +14,6 @@ from lzstring import LZString
 def main():
     """main"""
 
-    match_result = re.match(r'aaaaa(.*)ccccc', 'aaaaabbbbbccccc')
-    print(match_result)
-
     url = 'http://m.ikanman.com/comic/9637/97814.html'
     html = None
 
@@ -121,10 +118,16 @@ def main():
         image_name = image_url.split('/')[-1]
         image_path = image_dir + "/" + image_name
         req = request.Request(image_url)
-        req.add_header('User-Agent', 'Mozilla/6.0 (iPhone; CPU iPhone OS 8_0 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Version/8.0 Mobile/10A5376e Safari/8536.25')
+        req.add_header("Accept", "image/webp,image/*,*/*;q=0.8")
+        req.add_header("Referer", "http://m.ikanman.com/comic/9637/97814.html")
+        req.add_header("Connection", "keep-alive")
+        req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36')
         image_data = request.urlopen(req).read()
         with open(image_path, "wb") as image_file:
             image_file.write(image_data)
+            print("download success! image_name = %s, image_data size = %d" % (image_name, len(image_data)))
+
+    print("main exit")
 
 
 if __name__ == '__main__':
