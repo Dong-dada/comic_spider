@@ -7,14 +7,16 @@ comic spider
 import json
 import os
 import re
+import time
 from urllib import request
+from urllib import error
 from bs4 import BeautifulSoup
 from lzstring import LZString
 
 def main():
     """main"""
 
-    url = 'http://m.ikanman.com/comic/9637/97814.html'
+    url = 'http://m.ikanman.com/comic/13604/280248.html'
     html = None
 
     # download html
@@ -110,24 +112,44 @@ def main():
     for i in range(0, len(comic_images)):
         comic_images[i] = "http://i.hamreus.com:8080" + comic_images[i]
 
-    print("prepare download image count = %s" % len(comic_images))
+    print("image count = %s" % len(comic_images))
 
     # download image
     image_dir = "./images"
     if not os.path.exists(image_dir):
         os.mkdir(image_dir)
-    for image_url in comic_images:
+
+    index = 0
+    while index < len(comic_images):
+        image_url = comic_images[index]
         image_name = image_url.split('/')[-1]
         image_path = image_dir + "/" + image_name
+
+        if os.path.exists(image_path):
+            index += 1
+            continue
+
         req = request.Request(image_url)
         req.add_header("Accept", "image/webp,image/*,*/*;q=0.8")
         req.add_header("Referer", "http://m.ikanman.com/comic/9637/97814.html")
         req.add_header("Connection", "keep-alive")
         req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36')
-        image_data = request.urlopen(req).read()
-        with open(image_path, "wb") as image_file:
-            image_file.write(image_data)
-            print("download success! image_name = %s, image_data size = %d" % (image_name, len(image_data)))
+
+        try:
+            image_data = request.urlopen(req).read()
+        except error.HTTPError as err:
+            if err.code == 522:
+                print("%d, %s timeout" % (index, image_name))
+                time.sleep(5)
+                continue
+            else:
+                raise err
+        else:
+            with open(image_path, "wb") as image_file:
+                image_file.write(image_data)
+            print("%d, %s, %d" % (index, image_name, len(image_data)))
+            index += 1
+
 
     print("main exit")
 
