@@ -11,7 +11,7 @@ from PIL import Image
 def main():
     """main"""
 
-    comic_dir = "./images/姑获鸟之夏第四卷"
+    comic_dir = "./images/第07卷"
 
     if not os.path.exists(comic_dir):
         print("dir not exists")

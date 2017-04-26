@@ -13,11 +13,57 @@ from urllib import error
 from bs4 import BeautifulSoup
 from lzstring import LZString
 
-def main():
-    """main"""
+def crawl_chapter_list(url):
+    """crawl chapter list"""
 
-    url = 'http://m.ikanman.com/comic/13604/280248.html'
     html = None
+
+    req = request.Request(url)
+    req.add_header('User-Agent', 'Mozilla/6.0 (iPhone; CPU iPhone OS 8_0 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Version/8.0 Mobile/10A5376e Safari/8536.25')
+    with request.urlopen(req) as response:
+        if response.status != 200:
+            print("download failed! status = %s, reason = %s" % (response.status, response.reason))
+            return
+        html = response.read()
+
+    soup = BeautifulSoup(html, 'html.parser')
+    node = soup.find('div', class_=re.compile(r'^main-bar.*')).find("h1")
+    if node is None:
+        print("get title node failed!")
+        return
+    
+    title = node.get_text()
+    print(title)
+
+    node = soup.find('div', class_="chapter-list")
+    if node is None:
+        print("get chapter list node failed!")
+        return
+
+    href_nodes = node.find_all('a')
+    if href_nodes is None:
+        print("get href nodes failed!")
+        return
+    
+    chapter_info_list = list()
+    for node in href_nodes:
+        chapter_info = dict()
+        chapter_info["url"] = "http://m.ikanman.com" + node.get("href")
+        chapter_info["title"] = node.find("b").get_text()
+        chapter_info_list.append(chapter_info)
+    
+    return chapter_info_list
+        
+
+def crawl_chapter(chapter_info):
+    """crawl chapter"""
+
+    print("crawl_chapter %s" % chapter_info["title"])
+
+    html = None
+
+    url = chapter_info["url"]
+    title = chapter_info["title"]
 
     # download html
     req = request.Request(url)
@@ -115,9 +161,9 @@ def main():
     print("image count = %s" % len(comic_images))
 
     # download image
-    image_dir = "./images"
+    image_dir = "./images/" + title
     if not os.path.exists(image_dir):
-        os.mkdir(image_dir)
+        os.makedirs(image_dir)
 
     index = 0
     while index < len(comic_images):
@@ -131,7 +177,7 @@ def main():
 
         req = request.Request(image_url)
         req.add_header("Accept", "image/webp,image/*,*/*;q=0.8")
-        req.add_header("Referer", "http://m.ikanman.com/comic/9637/97814.html")
+        req.add_header("Referer", url)
         req.add_header("Connection", "keep-alive")
         req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36')
 
@@ -147,12 +193,20 @@ def main():
         else:
             with open(image_path, "wb") as image_file:
                 image_file.write(image_data)
-            print("%d, %s, %d" % (index, image_name, len(image_data)))
             index += 1
 
+def main():
+    """main"""
+    print("main enter")
+
+    url = "http://m.ikanman.com/comic/5388"
+
+    chapter_list = crawl_chapter_list(url)
+
+    for chapter_info in chapter_list:
+        crawl_chapter(chapter_info)
 
     print("main exit")
-
 
 if __name__ == '__main__':
     main()
